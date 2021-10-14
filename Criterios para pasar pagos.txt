@@ -1,0 +1,19 @@
+Criterios para pasar pagos
+
+Si entra pago y pago == confirmado:
+    Buscar a persona <--> modem
+        favor/contra
+        {
+            si pago [1-10] y monto == plan: verde
+            si pago [10-ad] y monto == plan + recargo: verde
+                si monto != plan: rojo
+                si monto != plan | !recargo: rojo
+            columna == dato previo | proporcional: chekeo manual
+            pago != plan:
+                pago => plan: verde
+                pago < plan: rojo
+            si columna anterior == null
+                si contenido == "0": pasar mes actual
+                si contenido == " ": pasar mes anterior
+                    mes anterior | !recargo: rojo
+        }
