@@ -1,15 +1,15 @@
 Criterios para pasar pagos
 
 Si entra pago y pago == confirmado:
-    Buscar a persona <--> modem
-        favor/contra
+    Buscar a persona && modem
+        favor/contra:
         {
             si pago [1-10] y monto == plan: verde
             si pago [10-ad] y monto == plan + recargo: verde
                 si monto != plan: rojo
-                si monto != plan | !recargo: rojo
+                si monto == / != plan | !recargo: rojo
             columna == dato previo | proporcional: chekeo manual
-            pago != plan:
+            monto != plan:
                 pago => plan: verde
                 pago < plan: rojo
             si columna anterior == null
@@ -17,3 +17,41 @@ Si entra pago y pago == confirmado:
                 si contenido == " ": pasar mes anterior
                     mes anterior | !recargo: rojo
         }
+
+#
+# Mejor planteo
+#
+
+# Aún falta argumentar de que se trata favor / contra
+
+    def formula_pago(columna_mes):
+        Si entra pago y pago == confirmado:
+            Buscar a persona && modem
+                columna_mes = gs.last_null_month_column
+                favor / contra:
+                {
+                    si pago [1-10]:
+                        monto => plan: columna_mes.verde
+                            si monto > plan:
+                                saldo a favor
+                        monto < plan: columna_mes.rojo
+                    else pago [10-ad]:
+                        si recargo:
+                            monto => plan && recargo: columna_mes.verde
+                        else !recargo:
+                            monto => plan && !recargo: columna_mes.rojo
+                }
+
+    # Es lo mismo pero teniendo en cuenta que el contexto es de
+    # mes pasado y no actual
+    columna_anterior = columna_mes
+
+    si columna_anterior == null:
+        favor / contra:
+        {
+            si contenido == "0":
+                formula_pago(mes_actual)
+            elif si contenido == " "
+                formula_pago(mes_anterior)
+        }
+        
